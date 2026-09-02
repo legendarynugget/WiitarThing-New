@@ -1,5 +1,3 @@
-Here is the rewritten `README.md` reflecting all the new features, UI modernizations, pairing improvements, notification controls, and architectural fixes.
-
 ---
 
 # WiitarThing New
