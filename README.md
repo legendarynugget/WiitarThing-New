@@ -2,7 +2,7 @@ Here is the rewritten `README.md` reflecting all the new features, UI modernizat
 
 ---
 
-# WiitarThing
+# WiitarThing New
 
 A lightweight, modernized Windows application that seamlessly connects Wii Guitar Hero instruments, drums, turntables, and classic controllers to your PC wirelessly as virtual Xbox 360 controllers via Bluetooth.
 
