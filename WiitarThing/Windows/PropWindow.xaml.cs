@@ -4,93 +4,35 @@ using System.Windows.Controls;
 
 namespace WiitarThing
 {
-    /// <summary>
-    /// Interaction logic for PropWindow.xaml
-    /// </summary>
     public partial class PropWindow : Window
     {
         public bool doSave = false;
-        public bool customCalibrate = false;
         public Property props;
 
-        PropWindow(Property org) : this(org, "Controller") { }
-
-        public PropWindow(Property org, string defalutName)
+        public PropWindow(Property org, string defaultName)
         {
             InitializeComponent();
 
             props = new Property(org);
-            nameInput.Text = string.IsNullOrWhiteSpace(props.name) ? defalutName : props.name;
-            defaultInput.Text = props.profile;
-            autoCheckbox.IsChecked = props.autoConnect;
-            if (props.autoNum >= 0 && props.autoNum <= autoConnectNumber.Items.Count)
+            nameInput.Text = string.IsNullOrWhiteSpace(props.name) ? defaultName : props.name;
+
+            if (props.autoNum >= 0 && props.autoNum < autoConnectNumber.Items.Count)
             {
                 autoConnectNumber.SelectedIndex = props.autoNum;
             }
-            if (props.rumbleIntensity >= 0 && props.rumbleIntensity <= rumbleSelection.Items.Count)
+            else
             {
-                rumbleSelection.SelectedIndex = props.rumbleIntensity;
+                autoConnectNumber.SelectedIndex = props.autoConnect ? 5 : 0;
             }
-            switch (props.calPref)
-            {
-                case Property.CalibrationPreference.Default:
-                    calibrationSelection.SelectedIndex = 0;
-                    break;
-                case Property.CalibrationPreference.Minimal:
-                    calibrationSelection.SelectedIndex = 1;
-                    break;
-                case Property.CalibrationPreference.More:
-                    calibrationSelection.SelectedIndex = 2;
-                    break;
-                case Property.CalibrationPreference.Extra:
-                    calibrationSelection.SelectedIndex = 3;
-                    break;
-                case Property.CalibrationPreference.Custom:
-                    calibrationSelection.SelectedIndex = 4;
-                    break;
-            }
-            pointerSelection.SelectedIndex = (int)org.pointerMode;
-        }
 
-        private void cancelBtn_Click(object sender, RoutedEventArgs e)
-        {
-            customCalibrate = false;
-            Close();
-        }
-
-        private void saveBtn_Click(object sender, RoutedEventArgs e)
-        {
-            customCalibrate = false;
-            doSave = true;
-            Close();
-        }
-
-        private void autoCheckbox_Click(object sender, RoutedEventArgs e)
-        {
-            props.autoConnect = autoCheckbox.IsChecked == true;
+            rumbleCheckbox.IsChecked = props.useRumble;
         }
 
         private void nameInput_TextChanged(object sender, TextChangedEventArgs e)
         {
-            props.name = nameInput.Text;
-        }
-
-        private void defaultInput_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            props.profile = defaultInput.Text;
-        }
-
-        private void defaultBtn_Click(object sender, RoutedEventArgs e)
-        {
-            Microsoft.Win32.OpenFileDialog dialog = new Microsoft.Win32.OpenFileDialog();
-            dialog.DefaultExt = ".wsp";
-            dialog.Filter = App.PROFILE_FILTER;
-
-            Nullable<bool> doLoad = dialog.ShowDialog();
-
-            if (doLoad == true && dialog.CheckFileExists)
+            if (props != null)
             {
-                defaultInput.Text = dialog.FileName;
+                props.name = nameInput.Text;
             }
         }
 
@@ -103,66 +45,26 @@ namespace WiitarThing
             }
         }
 
-        private void Rumble_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void rumbleCheckbox_Click(object sender, RoutedEventArgs e)
         {
             if (props != null)
             {
-                props.useRumble = rumbleSelection.SelectedIndex > 0;
-                props.rumbleIntensity = rumbleSelection.SelectedIndex;
+                props.useRumble = rumbleCheckbox.IsChecked == true;
             }
         }
 
-        private void Calibration_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void saveBtn_Click(object sender, RoutedEventArgs e)
         {
-            if (props != null)
-            {
-                switch (calibrationSelection.SelectedIndex)
-                {
-                    case 0:
-                        props.calPref = Property.CalibrationPreference.Default;
-                        customCalibrate = false;
-                        break;
-
-                    case 1:
-                        props.calPref = Property.CalibrationPreference.Minimal;
-                        customCalibrate = false;
-                        break;
-
-                    case 2:
-                        props.calPref = Property.CalibrationPreference.More;
-                        customCalibrate = false;
-                        break;
-
-                    case 3:
-                        props.calPref = Property.CalibrationPreference.Extra;
-                        customCalibrate = false;
-                        break;
-
-                    case 4:
-                        //props.calPref = Property.CalibrationPreference.Custom;
-                        //customCalibrate = true;
-                        //Hide();
-                        break;
-                }
-            }
+            doSave = true;
+            DialogResult = true;
+            Close();
         }
 
-        private void calibrationSelection_DropDownClosed(object sender, EventArgs e)
+        private void cancelBtn_Click(object sender, RoutedEventArgs e)
         {
-            if (props != null && calibrationSelection.SelectedIndex == 4)
-            {
-                props.calPref = Property.CalibrationPreference.Custom;
-                customCalibrate = true;
-                Hide();
-            }
-        }
-
-        private void pointerSelection_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (props != null)
-            {
-                props.pointerMode = (Property.PointerOffScreenMode)pointerSelection.SelectedIndex;
-            }
+            doSave = false;
+            DialogResult = false;
+            Close();
         }
     }
 }

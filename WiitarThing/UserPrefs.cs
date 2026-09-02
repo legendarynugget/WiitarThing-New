@@ -1,53 +1,30 @@
-﻿using Microsoft.Win32;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Xml.Serialization;
+using Microsoft.Win32;
 
 namespace WiitarThing
 {
     public class UserPrefs
     {
+        private static readonly object FileLock = new object();
         private static UserPrefs _instance;
+
         public static UserPrefs Instance
         {
             get
             {
                 if (_instance == null)
                 {
-                    if (File.Exists(AppDomain.CurrentDomain.BaseDirectory + @"\prefs.config"))
-                    {
-                        DataPath = AppDomain.CurrentDomain.BaseDirectory + @"\prefs.config";
-                        LoadPrefs();
-                    }
-                    else if (File.Exists(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\WiitarThing_prefs.config"))
-                    {
-                        DataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\WiitarThing_prefs.config";
-                        LoadPrefs();
-                    }
-                    else
-                    {
-                        _instance = new UserPrefs();
-                        _instance.devicePrefs = new List<Property>();
-                        _instance.defaultProfile = new Profile();
-                        // we could, but just in case lets not
-                        //_instance.greedyMode = Environment.OSVersion.Version.Major < 10; 
-                        //_instance.toshibaMode = !Shared.Windows.NativeImports.BluetoothEnableDiscovery(IntPtr.Zero, true);
-                        DataPath = AppDomain.CurrentDomain.BaseDirectory + @"\prefs.config";
-                        
-                        if (!SavePrefs())
-                        {
-                            DataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\WiitarThing_prefs.config";
-                            SavePrefs();
-                        }
-                    }
+                    LoadOrCreate();
                 }
-
                 return _instance;
             }
         }
 
-        public static string DataPath { get; protected set; }
+        public static string DataPath { get; private set; }
+
         public static bool AutoStart
         {
             get { return Instance.autoStartup; }
@@ -55,211 +32,134 @@ namespace WiitarThing
             {
                 try
                 {
-                    RegistryKey key = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Run", true);
-
-                    if (value)
+                    using (RegistryKey key = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Run", true))
                     {
-                        if (key.GetValue("WiinUSoft") == null)
+                        if (value)
                         {
-                            key.SetValue("WiinUSoft", (new Uri(System.Reflection.Assembly.GetEntryAssembly().CodeBase)).LocalPath);
+                            string exePath = System.Reflection.Assembly.GetEntryAssembly().Location;
+                            key?.SetValue("WiitarThing", $"\"{exePath}\"");
                         }
-                    }
-                    else
-                    {
-                        key.DeleteValue("WiinUSoft", false);
-                    }
-                }
-                catch
-                {
-                    string dir = Environment.GetFolderPath(Environment.SpecialFolder.Startup);
-
-                    if (value)
-                    {
-                        if (!File.Exists(Path.Combine(dir, "WiinUSoft.lnk")))
+                        else
                         {
-                            MainWindow.Instance.CreateShortcut(dir);
-                        }
-                    }
-                    else
-                    {
-                        if (File.Exists(Path.Combine(dir, "WiinUSoft.lnk")))
-                        {
-                            File.Delete(Path.Combine(dir, "WiinUSoft.lnk"));
+                            key?.DeleteValue("WiitarThing", false);
                         }
                     }
                 }
+                catch { }
 
                 Instance.autoStartup = value;
             }
         }
 
-        public List<Property> devicePrefs;
-        public Profile defaultProfile;
+        public List<Property> devicePrefs = new List<Property>();
+        public Profile defaultProfile = new Profile();
         public Property defaultProperty;
-        public bool autoStartup;
-        public bool startMinimized;
-        public bool greedyMode;
-        public bool toshibaMode;
+        public bool autoStartup = false;
+        public bool startMinimized = false;
+        public bool greedyMode = false;
+        public bool toshibaMode = false;
         public bool autoRefresh = true;
 
-        public UserPrefs()
-        { }
+        // Notification Controls
+        public bool enableNotifications = true;
+        public bool notifyBatteryLow = true;
+        public bool notifyDisconnect = true;
 
-        public static bool LoadPrefs()
+        public UserPrefs() { }
+
+        private static void LoadOrCreate()
         {
-            bool successful = false;
-            XmlSerializer X = new XmlSerializer(typeof(UserPrefs));
-            
-            try
+            string appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            string localConfig = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "prefs.config");
+            string appDataConfig = Path.Combine(appData, "WiitarThing_prefs.config");
+
+            DataPath = File.Exists(localConfig) ? localConfig : appDataConfig;
+
+            if (!LoadPrefs())
             {
-                if (File.Exists(DataPath))
-                {
-                    using (FileStream stream = File.OpenRead(DataPath))
-                    using (StreamReader reader = new StreamReader(stream))
-                    {
-                        _instance = X.Deserialize(reader) as UserPrefs;
-                        reader.Close();
-                        stream.Close();
-                    }
-
-                    successful = true;
-
-                    if (_instance != null && _instance.devicePrefs != null)
-                        _instance.defaultProperty = _instance.devicePrefs.Find((p) => p.hid.ToLower().Equals("all"));
-                }
-            }
-            catch (Exception e) 
-            {
-                System.Diagnostics.Debug.WriteLine(e.Message);
-            }
-
-            return successful;
-        }
-
-        public static bool SavePrefs()
-        {
-            bool successful = false;
-            XmlSerializer X = new XmlSerializer(typeof(UserPrefs));
-
-            try
-            {
-                if (File.Exists(DataPath))
-                {
-                    FileInfo prefs = new FileInfo(DataPath);
-                    using (FileStream stream = File.Open(DataPath, FileMode.Create, FileAccess.ReadWrite))
-                    using (StreamWriter writer = new StreamWriter(stream))
-                    {
-                        X.Serialize(writer, _instance);
-                        writer.Close();
-                        stream.Close();
-                    }
-                }
-                else
-                {
-                    using (FileStream stream = File.Create(DataPath))
-                    using (StreamWriter writer = new StreamWriter(stream))
-                    {
-                        X.Serialize(writer, _instance);
-                        writer.Close();
-                        stream.Close();
-                    }
-                }
-
-                successful = true;
-            }
-            catch (Exception e)
-            {
-                System.Diagnostics.Debug.WriteLine(e.Message);
-            }
-
-            return successful;
-        }
-
-        public Property GetDevicePref(string hid)
-        {
-            foreach (var pref in devicePrefs)
-            {
-                if (pref.hid == hid)
-                {
-                    return pref;
-                }
-            }
-
-            return defaultProperty;
-        }
-
-        public void AddDevicePref(Property property)
-        {
-            foreach (var pref in devicePrefs)
-            {
-                if (pref.hid == property.hid)
-                {
-                    pref.name            = property.name;
-                    pref.autoConnect     = property.autoConnect;
-                    pref.profile         = property.profile;
-                    pref.connType        = property.connType;
-                    pref.autoNum         = property.autoNum;
-                    pref.rumbleIntensity = property.rumbleIntensity;
-                    pref.useRumble       = property.useRumble;
-                    pref.calPref         = property.calPref;
-
-                    return;
-                }
-            }
-
-            devicePrefs.Add(property);
-        }
-
-        public void UpdateDeviceIcon(string path, string icon)
-        {
-            var prop = devicePrefs.FindIndex((p) => p.hid == path);
-
-            if (prop >= 0)
-            {
-                devicePrefs[prop].lastIcon = icon;
+                _instance = new UserPrefs();
                 SavePrefs();
             }
         }
 
-        public string GetDeviceIcon(string path)
+        public static bool LoadPrefs()
         {
-            var prop = devicePrefs.FindIndex((p) => p.hid == path);
-
-            if (prop >= 0)
+            lock (FileLock)
             {
-                return devicePrefs[prop].lastIcon;
-            }
+                if (!File.Exists(DataPath)) return false;
 
-            return "";
+                try
+                {
+                    var serializer = new XmlSerializer(typeof(UserPrefs));
+                    using (FileStream stream = File.OpenRead(DataPath))
+                    using (StreamReader reader = new StreamReader(stream))
+                    {
+                        _instance = serializer.Deserialize(reader) as UserPrefs;
+                        return _instance != null;
+                    }
+                }
+                catch
+                {
+                    return false;
+                }
+            }
+        }
+
+        public static bool SavePrefs()
+        {
+            lock (FileLock)
+            {
+                try
+                {
+                    var serializer = new XmlSerializer(typeof(UserPrefs));
+                    using (FileStream stream = File.Create(DataPath))
+                    using (StreamWriter writer = new StreamWriter(stream))
+                    {
+                        serializer.Serialize(writer, _instance);
+                        return true;
+                    }
+                }
+                catch
+                {
+                    return false;
+                }
+            }
+        }
+
+        public Property GetDevicePref(string hid)
+        {
+            return devicePrefs.Find(p => p.hid == hid) ?? defaultProperty;
+        }
+
+        public void AddDevicePref(Property property)
+        {
+            int index = devicePrefs.FindIndex(p => p.hid == property.hid);
+            if (index >= 0)
+            {
+                devicePrefs[index] = property;
+            }
+            else
+            {
+                devicePrefs.Add(property);
+            }
+        }
+
+        public void UpdateDeviceIcon(string path, string icon)
+        {
+            var prop = devicePrefs.Find(p => p.hid == path);
+            if (prop != null)
+            {
+                prop.lastIcon = icon;
+                SavePrefs();
+            }
         }
     }
 
     public class Property
     {
-        public enum ProfHolderType
-        {
-            XInput = 0,
-            DInput = 1
-        }
-
-        public enum CalibrationPreference
-        {
-            Raw     = -2,
-            Minimal = -1,
-            Default = 0,
-            Defalut = 0,
-            More    = 1,
-            Extra   = 2,
-            Custom  = 3
-        }
-
-        public enum PointerOffScreenMode
-        {
-            Center = 0,
-            SnapX  = 1,
-            SnapY  = 2,
-            SnapXY = 3
-        }
+        public enum ProfHolderType { XInput = 0, DInput = 1 }
+        public enum CalibrationPreference { Raw = -2, Minimal = -1, Default = 0, More = 1, Extra = 2, Custom = 3 }
+        public enum PointerOffScreenMode { Center = 0, SnapX = 1, SnapY = 2, SnapXY = 3 }
 
         public string hid = "";
         public string name = "";
@@ -268,35 +168,22 @@ namespace WiitarThing
         public bool useRumble = true;
         public int autoNum = 0;
         public int rumbleIntensity = 2;
-        public ProfHolderType connType;
+        public ProfHolderType connType = ProfHolderType.XInput;
         public string profile = "";
-        public CalibrationPreference calPref;
-        public string calString = ""; // not the best solution for saving the custom config but makes it easy
+        public CalibrationPreference calPref = CalibrationPreference.Default;
+        public string calString = "";
         public PointerOffScreenMode pointerMode = PointerOffScreenMode.Center;
 
-        public Property()
-        {
-            hid = "";
-            connType = ProfHolderType.XInput;
-            calPref = CalibrationPreference.Default;
-            pointerMode = PointerOffScreenMode.Center;
-        }
-
-        public Property(string ID)
-        {
-            hid = ID;
-            connType = ProfHolderType.XInput;
-            calPref = CalibrationPreference.Default;
-            pointerMode = PointerOffScreenMode.Center;
-        }
-
+        public Property() { }
+        public Property(string id) { hid = id; }
         public Property(Property copy)
         {
             hid = copy.hid;
             name = copy.name;
+            lastIcon = copy.lastIcon;
             autoConnect = copy.autoConnect;
-            autoNum = copy.autoNum;
             useRumble = copy.useRumble;
+            autoNum = copy.autoNum;
             rumbleIntensity = copy.rumbleIntensity;
             connType = copy.connType;
             profile = copy.profile;
@@ -308,32 +195,14 @@ namespace WiitarThing
 
     public class Profile
     {
-        public enum HolderType
-        {
-            XInput = 0,
-            DInput = 1
-        }
+        public enum HolderType { XInput = 0, DInput = 1 }
 
-        public NintrollerLib.ControllerType profileType;
-        public HolderType connType;
-        public List<string> controllerMapKeys;
-        public List<string> controllerMapValues;
+        public NintrollerLib.ControllerType profileType = NintrollerLib.ControllerType.Guitar;
+        public HolderType connType = HolderType.XInput;
+        public List<string> controllerMapKeys = new List<string>();
+        public List<string> controllerMapValues = new List<string>();
 
-        public Profile()
-        {
-            profileType = NintrollerLib.ControllerType.Wiimote;
-            controllerMapKeys = new List<string>();
-            controllerMapValues = new List<string>();
-            connType = HolderType.XInput;
-        }
-
-        public Profile(NintrollerLib.ControllerType type)
-        {
-            profileType = type;
-            controllerMapKeys = new List<string>();
-            controllerMapValues = new List<string>();
-            connType = HolderType.XInput;
-        }
+        public Profile() { }
+        public Profile(NintrollerLib.ControllerType type) { profileType = type; }
     }
-
 }

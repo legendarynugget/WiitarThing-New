@@ -3,29 +3,85 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              StartupUri="Windows/MainWindow.xaml">
     <Application.Resources>
-        <Color x:Key="AntemWhite">#FFF3F6FB</Color>
-        <Color x:Key="SocialBlue">#FFE7F3FF</Color>
-        <Color x:Key="Eyeing">#FFDCEEF8</Color>
-        <Color x:Key="AntemSky">#FFADCCEB</Color>
-        <Color x:Key="AntemBlue">#FF7CA3CA</Color>
-        <Color x:Key="JohnTheRevelater">#FF5A6E83</Color>
-        <Color x:Key="LowBattery">#FFDF6C25</Color>
+        <!-- Modernized Color Palette -->
+        <Color x:Key="BgDark">#1E1E2E</Color>
+        <Color x:Key="BgMedium">#252538</Color>
+        <Color x:Key="BgLight">#2F2F45</Color>
+        <Color x:Key="AccentBlue">#5865F2</Color>
+        <Color x:Key="AccentGreen">#57F287</Color>
+        <Color x:Key="AccentOrange">#FEE75C</Color>
+        <Color x:Key="AccentRed">#ED4245</Color>
+        <Color x:Key="TextPrimary">#FFFFFF</Color>
+        <Color x:Key="TextSecondary">#B9BBBE</Color>
+
+        <!-- Legacy Color Aliases for Compatibility -->
+        <Color x:Key="AntemWhite">#252538</Color>
+        <Color x:Key="SocialBlue">#1E1E2E</Color>
+        <Color x:Key="Eyeing">#2F2F45</Color>
+        <Color x:Key="AntemSky">#5865F2</Color>
+        <Color x:Key="AntemBlue">#3B82F6</Color>
+        <Color x:Key="JohnTheRevelater">#4E5058</Color>
+        <Color x:Key="LowBattery">#ED4245</Color>
+
+        <SolidColorBrush x:Key="BrushBgDark" Color="{DynamicResource BgDark}"/>
+        <SolidColorBrush x:Key="BrushBgMedium" Color="{DynamicResource BgMedium}"/>
+        <SolidColorBrush x:Key="BrushBgLight" Color="{DynamicResource BgLight}"/>
+        <SolidColorBrush x:Key="BrushAccent" Color="{DynamicResource AccentBlue}"/>
+        <SolidColorBrush x:Key="BrushGreen" Color="{DynamicResource AccentGreen}"/>
+        <SolidColorBrush x:Key="BrushRed" Color="{DynamicResource AccentRed}"/>
+        <SolidColorBrush x:Key="BrushTextPrimary" Color="{DynamicResource TextPrimary}"/>
+        <SolidColorBrush x:Key="BrushTextSecondary" Color="{DynamicResource TextSecondary}"/>
+
+        <!-- Button Brushes -->
         <LinearGradientBrush x:Key="ButonFillBrush1" EndPoint="0,1" StartPoint="0,0">
-            <GradientStop Color="#FFDCEEF8" Offset="0"/>
-            <GradientStop Color="#FF7CA3CA" Offset="0.5"/>
-            <GradientStop Color="#FFADCCEB" Offset="1"/>
+            <GradientStop Color="#3B82F6" Offset="0"/>
+            <GradientStop Color="#2563EB" Offset="1"/>
         </LinearGradientBrush>
-        <LinearGradientBrush x:Key="ButonFillBrush1_Red" EndPoint="0,1" StartPoint="0,0">
-            <GradientStop Color="#FFF8EEDC" Offset="0"/>
-            <GradientStop Color="#FFCAA37C" Offset="0.5"/>
-            <GradientStop Color="#FFEBCCAD" Offset="1"/>
+        <LinearGradientBrush x:Key="ButtonSuccessBrush" EndPoint="0,1" StartPoint="0,0">
+            <GradientStop Color="#10B981" Offset="0"/>
+            <GradientStop Color="#059669" Offset="1"/>
         </LinearGradientBrush>
-        <SolidColorBrush x:Key="BrushAntemWhite" Color="#FFF3F6FB"/>
-        <SolidColorBrush x:Key="BrushSocialBlue" Color="#FFE7F3FF"/>
-        <SolidColorBrush x:Key="BrushEyeing" Color="#FFDCEEF8"/>
-        <SolidColorBrush x:Key="BrushAntemSky" Color="#FFADCCEB"/>
-        <SolidColorBrush x:Key="BrushAntemBlue" Color="#FF7CA3CA"/>
-        <SolidColorBrush x:Key="BrushJohnTheRevelator" Color="#FF5A6E83"/>
+        <LinearGradientBrush x:Key="ButtonDangerBrush" EndPoint="0,1" StartPoint="0,0">
+            <GradientStop Color="#EF4444" Offset="0"/>
+            <GradientStop Color="#DC2626" Offset="1"/>
+        </LinearGradientBrush>
+
+        <SolidColorBrush x:Key="BrushAntemWhite" Color="#252538"/>
+        <SolidColorBrush x:Key="BrushSocialBlue" Color="#1E1E2E"/>
+        <SolidColorBrush x:Key="BrushEyeing" Color="#2F2F45"/>
+        <SolidColorBrush x:Key="BrushAntemSky" Color="#60A5FA"/>
+        <SolidColorBrush x:Key="BrushAntemBlue" Color="#3B82F6"/>
+        <SolidColorBrush x:Key="BrushJohnTheRevelator" Color="#4E5058"/>
+
+        <!-- Standard Button Style -->
+        <Style TargetType="Button">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="8,4"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" CornerRadius="4" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Opacity" Value="0.88"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="Opacity" Value="0.75"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="border" Property="Opacity" Value="0.35"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Bitmap Assets -->
         <BitmapImage x:Key="ProIcon" CreateOptions="IgnoreImageCache,IgnoreColorProfile" CacheOption="OnLoad" UriSource="Images/ProController_white_32.png"/>
         <BitmapImage x:Key="CCIcon"  CreateOptions="IgnoreImageCache,IgnoreColorProfile" CacheOption="OnLoad" UriSource="Images/Classic_white_32.png"/>
         <BitmapImage x:Key="CCPIcon" CreateOptions="IgnoreImageCache,IgnoreColorProfile" CacheOption="OnLoad" UriSource="Images/ClassicPro_white_32.png"/>
@@ -33,8 +89,7 @@
         <BitmapImage x:Key="WNIcon"  CreateOptions="IgnoreImageCache,IgnoreColorProfile" CacheOption="OnLoad" UriSource="Images/WiimoteNunchuk_white_32.png"/>
         <BitmapImage x:Key="UIcon"   CreateOptions="IgnoreImageCache,IgnoreColorProfile" CacheOption="OnLoad" UriSource="Images/unknown.png"/>
         <BitmapImage x:Key="GTRIcon" CreateOptions="IgnoreImageCache,IgnoreColorProfile" CacheOption="OnLoad" UriSource="Images/GHWT_Wii_Guitar.png"/>
-        <BitmapImage x:Key="DRMIcon" CreateOptions="IgnoreImageCache,IgnoreColorProfile" CacheOption="OnLoad" UriSource="Images/GHWT_Wii_Drums.png" />
-        <!-- Turntable image by Sk8er5000, CC BY-SA 3.0: https://commons.wikimedia.org/wiki/File:DJ_Hero_Turntable_PS3.jpg -->
+        <BitmapImage x:Key="DRMIcon" CreateOptions="IgnoreImageCache,IgnoreColorProfile" CacheOption="OnLoad" UriSource="Images/GHWT_Wii_Drums.png"/>
         <BitmapImage x:Key="TTBIcon" CreateOptions="IgnoreImageCache,IgnoreColorProfile" CacheOption="OnLoad" UriSource="Images/DJHero_Turntable.png"/>
     </Application.Resources>
 </Application>
