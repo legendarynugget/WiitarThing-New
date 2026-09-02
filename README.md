@@ -5,7 +5,7 @@
 A lightweight, modernized Windows application that seamlessly connects Wii Guitar Hero instruments, drums, turntables, and classic controllers to your PC wirelessly as virtual Xbox 360 controllers via Bluetooth.
 
 ---
-
+![WiitarThing Screenshot](https://i.imgur.com/yu1twb1.png)
 ## Table of Contents
 
 - [What's New in This Version](#whats-new-in-this-version)
