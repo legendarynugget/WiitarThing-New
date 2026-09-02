@@ -1,112 +1,156 @@
+Here is the rewritten `README.md` reflecting all the new features, UI modernizations, pairing improvements, notification controls, and architectural fixes.
+
+---
+
 # WiitarThing
 
-A program that lets you connect Wii Guitar Hero instruments to a Windows PC wirelessly using a wiimote and Bluetooth.
+A lightweight, modernized Windows application that seamlessly connects Wii Guitar Hero instruments, drums, turntables, and classic controllers to your PC wirelessly as virtual Xbox 360 controllers via Bluetooth.
+
+---
 
 ## Table of Contents
 
+- [What's New in This Version](#whats-new-in-this-version)
 - [Setup](#setup)
-  - [Install WiitarThing](#install-wiitarthing)
-  - [Connect Your Wiimote](#connect-your-wiimote)
+  - [Prerequisites & Installation](#prerequisites--installation)
+  - [Connecting Your Controller](#connecting-your-controller)
   - [Calibrating Guitars](#calibrating-guitars)
 - [Features](#features)
-  - [Supported Devices](#supported-devices)
+  - [Supported Extensions](#supported-extensions)
+  - [One-Click Smart Connect](#one-click-smart-connect)
+  - [Live Battery Level & Indicator](#live-battery-level--indicator)
+  - [Notification Settings & Throttling](#notification-settings--throttling)
+  - [System Tray & Quick Access](#system-tray--quick-access)
   - [Guitar Touch Bar](#guitar-touch-bar)
 - [Troubleshooting](#troubleshooting)
-  - ["My wiimote doesn't sync!"](#my-wiimote-doesnt-sync)
-  - ["My guitar is moving my mouse around!"](#my-guitar-is-moving-my-mouse-around)
-- [For Further Assistance](#for-further-assistance)
-- [Other Setup](#other-setup)
-  - [Using a Dolphinbar](#using-a-dolphinbar)
-  - [Using with Guitar Hero 3/Aerosmith/World Tour PC](#using-with-guitar-hero-3aerosmithworld-tour-pc)
+  - ["My Wiimote is stuck flashing LEDs or sleeping"](#my-wiimote-is-stuck-flashing-leds-or-sleeping)
+  - ["My guitar is moving my desktop mouse cursor"](#my-guitar-is-moving-my-desktop-mouse-cursor)
+  - ["How do I completely unpair all old Wiimotes?"](#how-do-i-completely-unpair-all-old-wiimotes)
+- [Other Setup Scenarios](#other-setup-scenarios)
+  - [Using a Mayflash DolphinBar](#using-a-mayflash-dolphinbar)
+  - [Using with Native Guitar Hero PC Ports](#using-with-native-guitar-hero-pc-ports)
 - [Credits](#credits)
+
+---
+
+## What's New in This Version
+
+- **Modernized Dark Theme**: Clean, responsive layout with high-contrast elements, vector UI icons, and proper label wrapping.
+- **Instant Extension Detection**: WiitarThing immediately queries the Wiimote extension port upon connection, instantly recognizing your Guitar, Drums, or Classic Controller without requiring manual button presses.
+- **Smart One-Click Connect**: Pressing **CONNECT** automatically claims the first available Xbox 360 controller slot (Slots 1–4). Right-click or use the submenu if you wish to target a specific player slot manually.
+- **Zero-Drop Bluetooth Pairing Engine**: Completely rewritten pairing pipeline that eliminates Windows 10/11 ghost registry device lockouts, avoids premature sync timeouts, and automatically closes the sync window upon successful confirmation.
+- **Live Battery Reporting**: Real-time battery indicator with visual percentage display and dynamic color coding (Green, Amber, Red).
+- **Customizable Notifications**: Notification controls directly in the Settings menu (toggle low-battery alerts, disconnect toasts, or disable notifications entirely).
+- **Tray Double-Click Restoration**: Double-click the system tray icon anytime to bring the main window back into focus immediately.
+
+---
 
 ## Setup
 
-### Install WiitarThing
+### Prerequisites & Installation
 
-1. Download and install [ViGEmBus](https://github.com/ViGEm/ViGEmBus/releases).
-2. Download WiitarThing from [the "Releases" tab](https://github.com/TheNathannator/WiitarThing/releases), and extract it into a new folder.
+1. Download and install the [ViGEmBus Driver](https://github.com/ViGEm/ViGEmBus/releases).
+2. Download the latest **WiitarThing** release and extract the folder anywhere on your PC.
+3. Launch `WiitarThing.exe`.
 
-#### A Note About Older Versions
+### Connecting Your Controller
 
-If you're updating from v2.7.0 or earlier, you should uninstall the ScpDriver that it required, as it is no longer necessary. It is not required to be uninstalled however, if you have other programs that use it then you can leave it installed.
+1. Click **⚡ SYNC NEW CONTROLLER** on the top toolbar.
+2. Press the **Red SYNC Button** inside the Wiimote battery compartment (or hold **1 + 2**).
+3. The sync window will perform the PIN handshake, bind the Windows HID service, and automatically close once your controller is ready.
+4. Your controller will appear in the **AVAILABLE DEVICES** pane. Click **CONNECT** to instantly route it as Player 1 (or the next available Xbox 360 controller slot).
+5. The player LED on your Wiimote will turn solid blue to match your assigned player index.
 
-### Connect Your Wiimote
-
-1. Start up WiitarThing, then hit the Sync button in the top-left.
-2. Sync your wiimote by pressing either the red sync button underneath the battery cover, or both 1+2 at the same time.
-   - Be patient during this step, it may take a few tries.
-3. Once your wiimote is synced, close the Sync menu, then hit the Connect button on the entry that appears on the left side of the main menu.
-4. You can now connect your wiimote extension.
-
-Once your wiimote has been synced, you shouldn't have to sync it again, and can simply power it on and hit Connect. Some Bluetooth receivers don't handle this properly though, and may not correctly save the pairing.
-
-Please note that third-party wiimotes do not work 99% of the time. This is not something WiitarThing can solve, as a majority of third-party wiimotes cut corners and only implement enough of the Bluetooth stack to connect to a Wii, and cannot connect to a PC in any capacity.
+> **Note on Subsequent Reconnects:** Once paired, you do not need to open the Sync menu again. Simply tap any button on your controller, open WiitarThing, and click **CONNECT**.
 
 ### Calibrating Guitars
 
-Guitars must be calibrated before use, otherwise your tilt or whammy may not work correctly. Calibration can be done at any time by simply following these instructions, there is no specific menu you need to go to for it to work.
+Calibration can be completed at any time without entering a separate configuration screen:
 
-1. Lay the guitar flat with the frets facing up and neck pointing left, then press the `1` button on the wiimote.
-2. Stand the guitar up with the neck pointing directly up, then press the `2` button on the wiimote.
-3. Move your whammy bar all the way down and up a few times.
-4. Move the joystick around in a few full circles.
+1. Lay the guitar flat with the frets facing up and the neck pointing left, then press the `1` button on the Wiimote.
+2. Stand the guitar upright with the neck pointing directly toward the ceiling, then press the `2` button on the Wiimote.
+3. Push your whammy bar down and release it a few times across its full range of motion.
+4. Rotate the joystick in complete 360° circles.
+
+---
 
 ## Features
 
-### Supported Devices
+### Supported Extensions
 
-The following wiimote extensions are supported:
+- **Guitar Hero Guitars** (Les Paul, World Tour, GH5, Kramer, etc.)
+- **Guitar Hero Drum Kits**
+- **DJ Hero Turntables**
+- **Classic Controllers & Classic Controller Pros**
+- **Nunchuks**
+- **Wii U Pro Controllers** (native Bluetooth sync supported)
+- **Standalone Wiimotes**
 
-- Guitar Hero Guitar
-- Guitar Hero Drumkit
-- DJ Hero Turntable
-- Nunchuk
-- Classic Controller
-- Classic Controller Pro
+### One-Click Smart Connect
 
-Wiimotes can also be used standalone, currently with mappings that are intended for using a wiimote like you would a gamepad with Gamepad Mode enabled.
+Clicking **CONNECT** automatically finds the lowest unoccupied Xbox 360 player slot (Players 1 through 4) without forcing you to pick from a menu. If you need a specific player slot for multi-player setups, you can still right-click the button or use the option menu.
 
-The Wii U Pro Controller is also supported, and can be synced the same way as a wiimote can.
+### Live Battery Level & Indicator
+
+Each device card features a live battery level with color-coded percentage status:
+- **Green**: Good battery life ($>50\%$)
+- **Amber**: Moderate battery level ($25\% - 50\%$)
+- **Red**: Low battery level ($\le 20\%$)
+
+### Notification Settings & Throttling
+
+You can control Windows balloon and toast alerts under **⚙ Settings > Notifications**:
+- **Enable All Notifications**: Master switch for Windows pop-up notifications.
+- **Low Battery Warnings**: Alerts you when your controller battery drops below $20\%$ (includes built-in rate throttling so it never spams you during gameplay).
+- **Controller Disconnected Alerts**: Alerts you if an active controller unexpectedly drops out.
+
+### System Tray & Quick Access
+
+- Minimizing the application hides it to the Windows Taskbar notification area (System Tray).
+- **Double-click** the tray icon at any time to un-minimize and bring the window back into focus.
 
 ### Guitar Touch Bar
 
-On World Tour/GH5 guitars, the touch bar can be enabled and disabled by pressing the + and - buttons on the wiimote, respectively. When enabled, the touchbar will be mapped to the regular frets.
+On World Tour and GH5 guitars, the touch bar can be toggled on/off by pressing the `+` and `-` buttons on the Wiimote. When enabled, the touch bar registers as standard fret inputs for slider notes.
 
-- Please note that the touchbar is not the best and may be very finnicky! WiitarThing has no ability to fix this, as it just simply takes the data it gets and translates it directly.
+---
 
 ## Troubleshooting
 
-### "My wiimote doesn't sync!"
+### "My Wiimote is stuck flashing LEDs or sleeping"
+- Ensure **HID Wiimote** or legacy third-party virtual drivers are completely removed, as they block WiitarThing from accessing the HID interface.
+- Make sure you have the official **ViGEmBus driver** installed.
+- Click **❌ Unpair All Wiimotes** in the toolbar, wait for the purge to complete, and then pair via the **⚡ SYNC NEW CONTROLLER** button.
 
-Make sure you do NOT have HID Wiimote installed, as it completely overrides the Wiimote's drivers and makes WiitarThing unable to communicate with them. [Uninstallation instructions may be found here](https://www.julianloehr.de/educational-work/hid-wiimote/) (scroll down to "Uninstall Instructions").
+### "My guitar is moving my desktop mouse cursor"
+- This is caused by Steam's desktop gamepad configuration.
+- Open **Steam > Settings > Controller**, and under **Desktop Layout**, disable or remove the joystick-to-mouse mapping.
 
-If you do not have HID Wiimote installed, then your Bluetooth receiver is most likely to blame. Some receivers don't play well with wiimotes, and there just isn't anything that WiitarThing can do to fix it. Try to avoid cheaper receivers, and check user reviews before purchasing one.
+### "How do I completely unpair all old Wiimotes?"
+- Click **❌ Unpair All Wiimotes** on the top toolbar.
+- This purges stale Bluetooth registry device entries to clear phantom or dead devices.
 
-### "My guitar is moving my mouse around!"
+---
 
-This is most likely being caused by Steam's controller configuration settings. Go to the Settings menu inside Steam and click on the Controller tab, then click the General Controller Settings button and uncheck the Xbox controller configuration support option. If you play a game that requires this setting, then you can enable it for that specific game by going to its properties and enabling Steam Input in the Controller tab.
+## Other Setup Scenarios
 
-Alternatively, you can instead remove the right stick mapping inside of the Desktop Configuration menu. By default, Steam's desktop configuration maps the right stick of gamepad controllers to the mouse. Removing this mapping will stop the mouse from being controlled by the guitar.
+### Using a Mayflash DolphinBar
+1. Switch the DolphinBar to **Mode 4**.
+2. Sync your Wiimote directly to the DolphinBar hardware.
+3. Open WiitarThing, click the **ID** button on the detected entries until your guitar vibrates, and click **CONNECT**.
 
-## For Further Assistance
+### Using with Native Guitar Hero PC Ports
+WiitarThing creates a standard virtual **Xbox 360 Gamepad** (XInput) for maximum compatibility across games like *Clone Hero*, *YARG*, *RPCS3*, and *Dolphin*. 
 
-If you have any questions or issues not addressed in this readme, join the [official Clone Hero server on Discord](https://discordapp.com/invite/Hsn4Cgu) and ask in the `#help-line` channel.
+To use your controller with native legacy PC ports (such as *Guitar Hero III PC* or *Aerosmith PC*) that specifically look for Xbox 360 guitar VID/PIDs, combine WiitarThing with [xinputemu](https://github.com/sanjay900/xinputemu).
 
-## Other Setup
-
-### Using a Dolphinbar
-
-1. Press the mode button on your Dolphinbar until it goes into mode 4, then sync your wiimote to it.
-2. Open WiitarThing. 4 wiimotes will show up on the left, regardless of how many are connected to the Dolphinbar.
-3. Click the ID button on each entry until your wiimote vibrates, then click Connect on it.
-
-### Using with Guitar Hero 3/Aerosmith/World Tour PC
-
-WiitarThing will not work directly for the PC versions of Guitar Hero 3, Aerosmith, or World Tour. This is because WiitarThing emulates a standard Xbox 360 *gamepad*, and cannot currently emulate an Xbox 360 *guitar* directly. To work around this, you can use [xinputemu](https://github.com/sanjay900/xinputemu) alongside WiitarThing to make the game see an Xbox 360 guitar instead.
+---
 
 ## Credits
 
-WiitarThing is built upon [WiinUSoft and WiinUPro](https://github.com/KeyPuncher/WiinUPro), but not forked because the changes are too significant and messy. All credit for connecting Wiimotes in general and most of the UI goes to [KeyPuncher](https://github.com/KeyPuncher).
-
-This version of WiitarThing is based on [Myst/Meowmaritus's original version](https://github.com/Meowmaritus/WiitarThing), with the original ViGEmBus code done by [MWisBest in their fork/issue](https://github.com/Meowmaritus/WiitarThing/issues/9). [Aida-Enna](https://github.com/Aida-Enna) merged the ViGEmBus code and built releases for it, and now [TheNathannator](https://github.com/TheNathannator) maintains it.
+- **Justin Keys (KeyPuncher)**: Original creator of [WiinUSoft / WiinUPro](https://github.com/KeyPuncher/WiinUPro) architecture and Nintroller library.
+- **Meowmaritus**: Guitar Hero extension support and initial WiitarThing implementation.
+- **shockdude**: DJ Hero Turntable extension support.
+- **MWisBest**: Original ViGEmBus integration.
+- **Aida-Enna**: ViGEmBus updates and builds (2020–2023).
+- **TheNathannator & Contributors**: Maintenance
